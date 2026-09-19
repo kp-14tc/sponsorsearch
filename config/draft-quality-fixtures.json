@@ -1,0 +1,56 @@
+[
+  {
+    "name": "manufacturing_no_contact",
+    "payload": {
+      "company_name": "Northstar Fabrication",
+      "evidence": [
+        {
+          "source_url": "https://example.com/northstar",
+          "excerpt": "Northstar Fabrication provides precision sheet metal fabrication for automation equipment in Illinois."
+        }
+      ],
+      "contacts": [],
+      "outreach_angle": "Learn about skills used in precision fabrication",
+      "in_kind_opportunities": ["Technical career conversation"],
+      "research_summary": "Northstar Fabrication provides precision sheet metal fabrication for automation equipment in Illinois."
+    }
+  },
+  {
+    "name": "software_verified_contact",
+    "payload": {
+      "company_name": "Lakeside Software",
+      "evidence": [
+        {
+          "source_url": "https://example.com/lakeside",
+          "excerpt": "Lakeside Software develops production scheduling software for small manufacturers."
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Jordan Lee",
+          "title": "Engineering Manager",
+          "email": "jordan.lee@example.com"
+        }
+      ],
+      "outreach_angle": "Learn how software supports manufacturing operations",
+      "in_kind_opportunities": ["Software engineering career advice"],
+      "research_summary": "Lakeside Software develops production scheduling software for small manufacturers."
+    }
+  },
+  {
+    "name": "sparse_evidence_no_contact",
+    "payload": {
+      "company_name": "Prairie Components",
+      "evidence": [
+        {
+          "source_url": "https://example.com/prairie",
+          "excerpt": "Prairie Components distributes industrial fasteners in northern Illinois."
+        }
+      ],
+      "contacts": [],
+      "outreach_angle": "Learn about industrial distribution careers",
+      "in_kind_opportunities": [],
+      "research_summary": "Prairie Components distributes industrial fasteners in northern Illinois."
+    }
+  }
+]

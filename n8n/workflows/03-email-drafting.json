@@ -1,0 +1,105 @@
+{
+  "name": "03 Email drafting",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test",
+      "name": "Manual test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "called-by-parent",
+      "name": "Called by parent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Change to a persisted lead ID before running manually.\nreturn [{json: {lead_id: 1}}];"
+      },
+      "id": "manual-lead-id",
+      "name": "Manual lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://worker:8000/draft",
+        "options": {
+          "timeout": 3600000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({lead_id: $json.lead_id}) }}"
+      },
+      "id": "save-pending-draft",
+      "name": "Save pending draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manual test": {
+      "main": [
+        [
+          {
+            "node": "Manual lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual lead ID": {
+      "main": [
+        [
+          {
+            "node": "Save pending draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Called by parent": {
+      "main": [
+        [
+          {
+            "node": "Save pending draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 43200,
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

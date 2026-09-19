@@ -1,0 +1,30 @@
+{
+  "discovery": [
+    "industrial automation {location}",
+    "CNC machining {location}",
+    "manufacturing company {location}",
+    "robotics company {location}",
+    "sheet metal fabrication {location}",
+    "motion control {location}",
+    "metrology company {location}",
+    "engineering company {location}",
+    "electronics manufacturer {location}",
+    "CAD CAM company {location}",
+    "aerospace manufacturing {location}",
+    "industrial equipment {location}",
+    "manufacturing STEM sponsorship {location}",
+    "corporate STEM education {location}"
+  ],
+  "research": [
+    "\"{company}\" Illinois",
+    "site:{domain} STEM education",
+    "site:{domain} community",
+    "site:{domain} workforce development",
+    "site:{domain} FIRST Robotics",
+    "site:{domain} sponsorship",
+    "site:{domain} foundation",
+    "site:{domain} education",
+    "site:{domain} careers engineering",
+    "site:{domain} contact"
+  ]
+}

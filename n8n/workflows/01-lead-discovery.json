@@ -1,0 +1,169 @@
+{
+  "name": "01 Lead discovery",
+  "nodes": [
+    {
+      "parameters": {"rule": {"interval": [{"field": "days", "daysInterval": 1, "triggerAtHour": 6, "triggerAtMinute": 0}]}},
+      "id": "daily-at-six",
+      "name": "Daily at 6 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 180]
+    },
+    {
+      "parameters": {},
+      "id": "manual-test",
+      "name": "Manual test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {"inputSource": "passthrough"},
+      "id": "telegram-command",
+      "name": "Telegram command",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [0, -180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://worker:8000/discover",
+        "options": {
+          "timeout": 3600000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.query ? {query: $json.query, result_limit: 5} : {query_limit: 1, result_limit: 5, rotate_daily: true}) }}"
+      },
+      "id": "discover-and-screen",
+      "name": "Discover and screen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $json.leads.map(lead => ({json: lead}));"
+      },
+      "id": "candidate-leads",
+      "name": "Candidate leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "one-lead-at-a-time",
+      "name": "One lead at a time",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_WORKFLOW_02",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "deep-research-stage",
+      "name": "Deep research stage",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        100
+      ]
+    }
+  ],
+  "connections": {
+    "Daily at 6 AM": {"main": [[{"node": "Discover and screen", "type": "main", "index": 0}]]},
+    "Telegram command": {"main": [[{"node": "Discover and screen", "type": "main", "index": 0}]]},
+    "Manual test": {
+      "main": [
+        [
+          {
+            "node": "Discover and screen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discover and screen": {
+      "main": [
+        [
+          {
+            "node": "Candidate leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate leads": {
+      "main": [
+        [
+          {
+            "node": "One lead at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One lead at a time": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Deep research stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deep research stage": {
+      "main": [
+        [
+          {
+            "node": "One lead at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "timezone": "UTC",
+    "executionOrder": "v1",
+    "executionTimeout": 43200,
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

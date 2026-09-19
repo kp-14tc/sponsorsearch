@@ -1,0 +1,202 @@
+{
+  "name": "02 Deep research",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test",
+      "name": "Manual test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "called-by-parent",
+      "name": "Called by parent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Change to a persisted lead ID before running manually.\nreturn [{json: {lead_id: 1}}];"
+      },
+      "id": "manual-lead-id",
+      "name": "Manual lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://worker:8000/research",
+        "options": {
+          "timeout": 3600000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({lead_id: $json.lead_id}) }}"
+      },
+      "id": "research-lead",
+      "name": "Research lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "qualified",
+              "leftValue": "={{ $json.qualified }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "qualified",
+      "name": "Qualified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_WORKFLOW_03",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "draft-qualified-lead",
+      "name": "Draft qualified lead",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "id": "return-unqualified",
+      "name": "Return unqualified result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        180
+      ]
+    }
+  ],
+  "connections": {
+    "Manual test": {
+      "main": [
+        [
+          {
+            "node": "Manual lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual lead ID": {
+      "main": [
+        [
+          {
+            "node": "Research lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Called by parent": {
+      "main": [
+        [
+          {
+            "node": "Research lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research lead": {
+      "main": [
+        [
+          {
+            "node": "Qualified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualified": {
+      "main": [
+        [
+          {
+            "node": "Draft qualified lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return unqualified result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 43200,
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

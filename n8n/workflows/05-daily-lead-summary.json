@@ -1,0 +1,170 @@
+{
+  "id": "frcDailyDigest001",
+  "name": "05 Daily lead summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 11,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "daily-at-eleven",
+      "name": "Daily at 11 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        180
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "preview-summary",
+      "name": "Preview summary",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "called-after-command",
+      "name": "Called after command",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.include_draft === true && Number.isInteger(Number($json.lead_id)) ? 'http://worker:8000/telegram-drafts/' + Number($json.lead_id) : 'http://worker:8000/digest' }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "read-daily-summary",
+      "name": "Read daily summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "messages",
+        "options": {}
+      },
+      "id": "split-digest-parts",
+      "name": "Split digest parts",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "send-owner-digest",
+      "name": "Send owner digest",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Daily at 11 AM": {
+      "main": [
+        [
+          {
+            "node": "Read daily summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preview summary": {
+      "main": [
+        [
+          {
+            "node": "Read daily summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Called after command": {
+      "main": [
+        [
+          {
+            "node": "Read daily summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read daily summary": {
+      "main": [
+        [
+          {
+            "node": "Split digest parts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split digest parts": {
+      "main": [
+        [
+          {
+            "node": "Send owner digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 120,
+    "timezone": "UTC",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

@@ -1,0 +1,433 @@
+{
+  "id": "frcTelegramCommands001",
+  "name": "06 Telegram commands",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "poll-every-minute",
+      "name": "Poll every minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://worker:8000/telegram-commands/cursor",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "load-cursor",
+      "name": "Read durable cursor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.telegram.org/bot' + $env.TELEGRAM_BOT_TOKEN + '/getUpdates' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $json.offset }}"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "timeout",
+              "value": "0"
+            },
+            {
+              "name": "allowed_updates",
+              "value": "[\"message\"]"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "poll-telegram",
+      "name": "Poll Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://worker:8000/telegram-commands/intake",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({updates: Array.isArray($json.result) ? $json.result : []}) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "parse-command",
+      "name": "Ingest Telegram updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const commands = Array.isArray($json.commands) ? $json.commands : [];\nreturn commands.map(command => ({json: command}));"
+      },
+      "id": "claim-command",
+      "name": "Emit claimed commands",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "accepted",
+              "leftValue": "={{ $json.accepted }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "accepted",
+      "name": "New command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "search",
+              "leftValue": "={{ $json.command }}",
+              "rightValue": "search",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-search",
+      "name": "Search command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_WORKFLOW_01",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "run-search",
+      "name": "Run search and drafting",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "draft",
+              "leftValue": "={{ $json.command }}",
+              "rightValue": "draft",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-draft",
+      "name": "Draft command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_WORKFLOW_03",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "run-draft",
+      "name": "Draft saved lead",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_WORKFLOW_05",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "send-status",
+      "name": "Send current review queue",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2200,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({json: {...item.json, include_draft: true}}));"
+      },
+      "id": "include-saved-draft",
+      "name": "Include saved draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        20
+      ]
+    }
+  ],
+  "connections": {
+    "Poll every minute": {
+      "main": [
+        [
+          {
+            "node": "Read durable cursor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Telegram": {
+      "main": [
+        [
+          {
+            "node": "Ingest Telegram updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New command": {
+      "main": [
+        [
+          {
+            "node": "Search command",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Search command": {
+      "main": [
+        [
+          {
+            "node": "Run search and drafting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run search and drafting": {
+      "main": [
+        [
+          {
+            "node": "Send current review queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft command": {
+      "main": [
+        [
+          {
+            "node": "Draft saved lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send current review queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft saved lead": {
+      "main": [
+        [
+          {
+            "node": "Include saved draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read durable cursor": {
+      "main": [
+        [
+          {
+            "node": "Poll Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Telegram updates": {
+      "main": [
+        [
+          {
+            "node": "Emit claimed commands",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emit claimed commands": {
+      "main": [
+        [
+          {
+            "node": "New command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Include saved draft": {
+      "main": [
+        [
+          {
+            "node": "Send current review queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 43200,
+    "timezone": "UTC",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

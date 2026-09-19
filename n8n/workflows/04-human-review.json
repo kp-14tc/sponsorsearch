@@ -1,0 +1,244 @@
+{
+  "name": "04 Human review",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test",
+      "name": "Manual test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// First run action=list. For detail use action=detail and set lead_id.\n// Approval is explicit: action=approve, draft_id, approved_by and reviewed=true.\nreturn [{json: {action: 'list', lead_id: 1, draft_id: 1, approved_by: '', reviewed: false}}];"
+      },
+      "id": "choose-review-action",
+      "name": "Choose review action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "list",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "detail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "review-action",
+      "name": "Review action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://worker:8000/leads",
+        "options": {
+          "timeout": 3600000
+        }
+      },
+      "id": "list-saved-leads",
+      "name": "List saved leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ \"http://worker:8000/leads/\" + $json.lead_id }}",
+        "options": {
+          "timeout": 3600000
+        }
+      },
+      "id": "read-evidence-and-drafts",
+      "name": "Read evidence and drafts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "if ($json.reviewed !== true || !$json.approved_by.trim() || !Number.isInteger($json.draft_id)) throw new Error('Read detail first; set reviewed=true, draft_id and your name before approval.');\nreturn $input.all();"
+      },
+      "id": "require-explicit-review",
+      "name": "Require explicit review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ \"http://worker:8000/drafts/\" + $json.draft_id + \"/approve\" }}",
+        "options": {
+          "timeout": 3600000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({approved_by: $json.approved_by}) }}"
+      },
+      "id": "record-human-approval",
+      "name": "Record human approval",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        180
+      ]
+    }
+  ],
+  "connections": {
+    "Manual test": {
+      "main": [
+        [
+          {
+            "node": "Choose review action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choose review action": {
+      "main": [
+        [
+          {
+            "node": "Review action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review action": {
+      "main": [
+        [
+          {
+            "node": "List saved leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read evidence and drafts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Require explicit review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Require explicit review": {
+      "main": [
+        [
+          {
+            "node": "Record human approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 43200,
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}
