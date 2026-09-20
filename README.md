@@ -1,6 +1,7 @@
-# FRC Fundraising Agent
+# Sponsorsearch
+<img width="2000" height="2000" alt="sponsorsearchlogo (1)" src="https://github.com/user-attachments/assets/2d5c214e-e490-4763-b87d-1103cb32c42c" />
 
-A self-hosted sponsor research pipeline for an FRC team. The runtime target is a Windows 11 desktop with an RTX 3050; the Mac is used to build and check the repository.
+A self-hosted sponsor research pipeline for STEM NFPs. The runtime target is a Windows 11 desktop with an RTX 3050; the Mac is used to build and check the repository.
 
 n8n runs discovery, research and drafting in order. A small Python worker searches SearXNG, fetches bounded public pages, screens candidates with Qwen3.5:4b, and researches/drafts with Qwen3.5:9b. PostgreSQL stores leads, scores, evidence, contacts and drafts. Ollama runs directly on Windows; containers reach it through `host.docker.internal:11434`.
 
