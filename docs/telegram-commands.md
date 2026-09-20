@@ -7,7 +7,7 @@ Only messages whose Telegram chat ID and sender ID both equal the configured own
 Supported commands:
 
 - `/search` runs the normal bounded rotating discovery query, researches returned candidates sequentially and saves pending drafts for candidates scoring at least 70.
-- `/search precision machining near Example City Example State` uses that one bounded explicit search query instead.
+- `/search Specific Industry near Example City Example State` uses that one bounded explicit search query instead.
 - `/draft 8` creates or returns the pending draft for already-researched qualified lead 8, then sends the saved subject, email body, LinkedIn note and follow-up to the owner's Telegram chat for review. It fails for an unknown, excluded or unqualified lead.
 - `/status` sends the same saved review queue as the daily 11:00 AM digest.
 
