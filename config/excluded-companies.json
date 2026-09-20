@@ -1,28 +1,6 @@
 {
-  "reason": "Already contacted at IMTS",
+  "reason": "Already contacted",
   "companies": [
-    {"name": "MISUMI Americas", "aliases": ["MISUMI", "MISUMI America", "MISUMI USA", "MISUMI Amerias"], "domains": ["misumi.com", "misumi-ec.com", "misumiusa.com"]},
-    {"name": "Formic Technologies", "aliases": ["Formic"], "domains": ["formic.co"]},
-    {"name": "PBC Linear", "aliases": [], "domains": ["pbclinear.com"]},
-    {"name": "THK America", "aliases": ["THK"], "domains": ["thk.com"]},
-    {"name": "HIWIN", "aliases": [], "domains": ["hiwin.com", "hiwin.us", "hiwin.tw"]},
-    {"name": "Rockwell Automation", "aliases": [], "domains": ["rockwellautomation.com"]},
-    {"name": "Sandvik Coromant", "aliases": [], "domains": ["coromant.com", "sandvikcoromant.com"]},
-    {"name": "Mitsubishi Electric", "aliases": ["Mitsubishi Electric Automation"], "domains": ["mitsubishielectric.com"]},
-    {"name": "FANUC", "aliases": ["FANUC America"], "domains": ["fanucamerica.com", "fanuc.com", "fanuc.co.jp"]},
-    {"name": "Mazak", "aliases": ["Yamazaki Mazak"], "domains": ["mazak.com", "mazakusa.com"]},
-    {"name": "TRUMPF", "aliases": [], "domains": ["trumpf.com"]},
-    {"name": "Kennametal", "aliases": ["Kennamettal"], "domains": ["kennametal.com"]},
-    {"name": "BIG DAISHOWA", "aliases": ["BIG-DAISHOWA"], "domains": ["bigdaishowa.com", "big-daishowa.com", "big-daishowa.co.jp"]},
-    {"name": "Haimer USA", "aliases": ["Haimer"], "domains": ["haimer.com", "haimer-usa.com"]},
-    {"name": "Tungaloy NTK", "aliases": ["Tungaloy", "Tungaloy-NTK America", "NTK Cutting Tools"], "domains": ["tungaloy.com", "ntkcuttingtools.com"]},
-    {"name": "CERATIZIT", "aliases": [], "domains": ["ceratizit.com"]},
-    {"name": "SMW Autoblok", "aliases": ["SMW-Autoblok"], "domains": ["smwautoblok.com"]},
-    {"name": "SMC Corporation of America", "aliases": ["SMC Corp of America", "SMC Corporation America"], "domains": ["smcusa.com"]},
-    {"name": "Mitutoyo", "aliases": ["Mitutoyo America"], "domains": ["mitutoyo.com"]},
-    {"name": "Renishaw", "aliases": [], "domains": ["renishaw.com"]},
-    {"name": "KEYENCE", "aliases": ["KEYENCE Corporation of America"], "domains": ["keyence.com"]},
-    {"name": "Mastercam", "aliases": [], "domains": ["mastercam.com"]},
-    {"name": "Hexagon Manufacturing Intelligence", "aliases": ["Hexagon Mfg Intelligence", "Hexagin Mfg Intelligence", "Hexagin Manufacturing Intelligence"], "domains": ["hexagon.com", "hexagonmi.com"]}
+    {"name": "Company X", "aliases": ["X Co.", "X"], "domains": ["x.domain"]}
   ]
 }
