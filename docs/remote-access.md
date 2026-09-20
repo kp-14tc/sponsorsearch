@@ -1,13 +1,13 @@
-# Private remote access from the Mac
+# Private remote access from another device
 
 Complete local Windows setup and create the n8n owner account before this optional stage. Keep n8n's Compose port bound to `127.0.0.1:5678`. Only n8n is shared for private review; PostgreSQL, worker, Ollama, and SearXNG do not need remote exposure.
 
-## 1. Install and sign in on both computers
+## 1. Install and sign in on both devices
 
 1. On Windows, download the [official Tailscale Windows installer](https://tailscale.com/download/windows), run it, and open Tailscale. Use its tray icon to sign in when prompted; complete sign-in in the browser.
-2. On the Mac, follow [Tailscale's macOS installation instructions](https://tailscale.com/docs/install/mac). Open Tailscale and sign in with the **same account/tailnet** used on Windows. If your organization provides a tailnet, join the intended one on both devices.
-3. Confirm both computers appear in the [Tailscale device console](https://login.tailscale.com/admin/machines). A **tailnet** is the private network of devices/users connected through this account; it is separate from your home Wi-Fi. Tailscale authentication is separate from the n8n owner login.
-4. On Windows, open a new normal PowerShell and run `tailscale status`. Expect the Windows and Mac devices in the list. If the command is not recognized, reopen PowerShell after installation. Confirm Tailscale is connected on the Mac through its menu-bar app.
+2. On the client device you'll use for remote review, install [Tailscale](https://tailscale.com/download) for that platform. Open Tailscale and sign in with the **same account/tailnet** used on Windows. If your organization provides a tailnet, join the intended one on both devices.
+3. Confirm both devices appear in the [Tailscale device console](https://login.tailscale.com/admin/machines). A **tailnet** is the private network of devices/users connected through this account; it is separate from your home Wi-Fi. Tailscale authentication is separate from the n8n owner login.
+4. On Windows, open a new normal PowerShell and run `tailscale status`. Expect both devices in the list. If the command is not recognized, reopen PowerShell after installation. Confirm Tailscale is connected on the client device too.
 
 Do not buy a domain, open router ports, or install a public tunnel. Tailnet members allowed by your Tailscale access policy can reach shared services; restrict that policy if other members should not have access.
 
@@ -54,10 +54,10 @@ tailscale serve status
 
 Expect n8n health `PASS` and the same private HTTPS address. The container recreation keeps the existing database/volumes. Secure cookies remain enabled.
 
-## 4. Log in from the Mac and test away from home
+## 4. Log in from the client device and test away from home
 
-1. Open the exact Serve HTTPS URL in a Mac browser while Tailscale is connected.
-2. Log in with the **existing n8n owner email/password created on Windows**, not the `.env` database password and not your Tailscale password. You should see the same imported workflows. Do not create a second installation on the Mac.
+1. Open the exact Serve HTTPS URL in a browser on the client device while Tailscale is connected.
+2. Log in with the **existing n8n owner email/password created on Windows**, not the `.env` database password and not your Tailscale password. You should see the same imported workflows. Do not create a second installation on the client device.
 3. Use workflow **04** to list/reload the current database records. Old n8n execution output can be stale; use the [review instructions](workflows.md).
 4. To verify remote access, keep the host powered on and connect the client through a separate external network. Leave Tailscale connected and repeat login/review. Record the result in your operational notes.
 
@@ -65,7 +65,7 @@ Expect n8n health `PASS` and the same private HTTPS address. The container recre
 
 | Symptom | Check |
 |---|---|
-| Mac opens its own localhost and sees nothing | Use the actual Windows Serve HTTPS address. |
+| Client device opens its own localhost and sees nothing | Use the actual Windows Serve HTTPS address. |
 | Serve asks for HTTPS enablement | Follow its printed enablement link, then repeat Serve. |
 | HTTPS address unreachable | On Windows run `tailscale status` and `tailscale serve status`; confirm both devices use the same tailnet and access policy permits the connection. |
 | Serve reports backend unreachable | Confirm Docker Desktop is running and Windows localhost n8n loads; inspect `docker compose ps` and n8n logs. |

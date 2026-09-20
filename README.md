@@ -1,7 +1,7 @@
 # Sponsorsearch
 <img width="2000" height="2000" alt="sponsorsearchlogo (1)" src="https://github.com/user-attachments/assets/2d5c214e-e490-4763-b87d-1103cb32c42c" />
 
-A self-hosted sponsor research pipeline for STEM NFPs. The runtime target is a Windows 11 desktop with modest RTX hardware (i.e. a 3050); the Mac is used to build and check the repository.
+A self-hosted sponsor research pipeline for STEM NFPs. The runtime target is a Windows 11 desktop with modest RTX hardware, such as a GeForce RTX 3050.
 
 n8n runs discovery, research and drafting in order. A small Python worker searches SearXNG, fetches bounded public pages, screens candidates with Qwen3.5:4b, and researches/drafts with Qwen3.5:9b. PostgreSQL stores leads, scores, evidence, contacts and drafts. Ollama runs directly on Windows; containers reach it through `host.docker.internal:11434`.
 
@@ -13,19 +13,19 @@ Sponsorship drafts are pending human review and are never automatically sent. Dr
 
 The pipeline uses bounded HTTP extraction. The optional Crawl4AI Compose profile is diagnostic only; no Crawl4AI extraction adapter is implemented. Dynamic sites may yield no usable evidence.
 
-## Check on the Mac
+## Check locally
 
 Use a current Python (3.10+; 3.12 recommended). Docker and local models are optional for development checks:
 
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/python scripts/validate_config.py
-.venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python scripts/healthcheck.py
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.venv\Scripts\python.exe scripts/validate_config.py
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+.venv\Scripts\python.exe scripts/healthcheck.py
 ```
 
-The health check reports unavailable services separately; fixture tests do not require the Windows desktop.
+The health check reports unavailable services separately; fixture tests do not require full Docker/Ollama setup.
 
 ## Current status
 
@@ -33,8 +33,8 @@ Company exclusions live in `config/excluded-companies.json`: reason, company nam
 
 To update exclusions, edit this JSON and rebuild the worker with `docker compose up -d --build worker` (configuration is copied into the image). No database migration or deletion is needed.
 
-- **Verified on Mac:** `scripts/validate_config.py` passed YAML/JSON parsing, Python AST parsing, configuration/prompt checks, SQL structure and workflow-link checks. Python compilation passed separately; SQL also parsed with pglast. Fixture tests passed; these mock external services and do not establish database or n8n behavior. A live public HTTPS fetch of `https://example.com/` passed DNS pinning, TLS and extraction (142 cleaned characters); this does not validate a real-company pipeline. Six n8n Code scripts also passed JavaScript syntax checks.
+- **Verified locally:** `scripts/validate_config.py` passed YAML/JSON parsing, Python AST parsing, configuration/prompt checks, SQL structure and workflow-link checks. Python compilation passed separately; SQL also parsed with pglast. Fixture tests passed; these mock external services and do not establish database or n8n behavior. A live public HTTPS fetch of `https://example.com/` passed DNS pinning, TLS and extraction (142 cleaned characters); this does not validate a real-company pipeline. Six n8n Code scripts also passed JavaScript syntax checks.
 - **Statically validated:** configuration/workflow files and service contracts can be checked without Docker. This does not prove n8n importability or database startup.
-- **Requires Windows desktop:** NVIDIA/Ollama GPU use and model performance, Docker-to-native-Ollama access, PowerShell execution, Tailscale Serve and Mac access from another network, a real company run and later scheduled/nightly operation.
+- **Requires Windows desktop:** NVIDIA/Ollama GPU use and model performance, Docker-to-native-Ollama access, PowerShell execution, Tailscale Serve access from another network, a real company run and later scheduled/nightly operation.
 
 Detailed notes: [Windows setup](docs/windows-setup.md), [private remote access](docs/remote-access.md), [backup and restore](docs/backup-restore.md). PostgreSQL, n8n, Ollama and Windows operation still require live validation.
