@@ -1,4 +1,5 @@
 # Sponsorsearch
+<img width="2000" height="2000" alt="sponsorsearchlogo (1)" src="https://github.com/user-attachments/assets/2d5c214e-e490-4763-b87d-1103cb32c42c" />
 
 A self-hosted sponsor research pipeline for STEM NFPs. The runtime target is a Windows 11 desktop with an RTX 3050; the Mac is used to build and check the repository.
 
